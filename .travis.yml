@@ -18,6 +18,6 @@ before_install:
 
 deploy:
     provider: script
-    script: echo 'Hello'
+    script: chmod +x udacity-c3-deployment/docker/docker_push.sh
     on:
         branch: dev
