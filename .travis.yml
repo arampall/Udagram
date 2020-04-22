@@ -18,6 +18,6 @@ before_install:
 
 deploy:
     provider: script
-    script: bash udacity-c3-deployment/docker/docker_push.sh
+    script: cd ./udacity-c3-deployment/docker/ && chmod +x ./docker_push.sh && ./docker_push.sh
     on:
         branch: dev
