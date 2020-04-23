@@ -1,53 +1,42 @@
 # Udagram Image Filtering Microservice
 
-Udagram is a simple cloud application developed alongside the Udacity Cloud Engineering Nanodegree. It allows users to register and log into a web client, post photos to the feed, and process photos using an image filtering microservice.
-
-The project is split into three parts:
+The project is split into following parts:
 1. [The Simple Frontend](/udacity-c3-frontend)
 A basic Ionic client web application which consumes the RestAPI Backend. 
 2. [The RestAPI Feed Backend](/udacity-c3-restapi-feed), a Node-Express feed microservice.
 3. [The RestAPI User Backend](/udacity-c3-restapi-user), a Node-Express user microservice.
+4. A reverseproxy nginx server to forward requests to the corresponding the backend microservice.
 
-## Getting Setup
+## Project Details
 
-> _tip_: this frontend is designed to work with the RestAPI backends). It is recommended you stand up the backend first, test using Postman, and then the frontend should integrate.
+### Application Endpoint
+[https://myudagram.com/home](http://ad64965fd470d46c694b62bfb0b947d4-2089795939.us-east-1.elb.amazonaws.com:8100/)
 
-### Installing Node and NPM
-This project depends on Nodejs and Node Package Manager (NPM). Before continuing, you must download and install Node (NPM is included) from [https://nodejs.com/en/download](https://nodejs.org/en/download/).
-
-### Installing Ionic Cli
-The Ionic Command Line Interface is required to serve and build the frontend. Instructions for installing the CLI can be found in the [Ionic Framework Docs](https://ionicframework.com/docs/installation/cli).
-
-### Installing project dependencies
-
-This project uses NPM to manage software dependencies. NPM Relies on the package.json file located in the root of this repository. After cloning, open your terminal and run:
-```bash
-npm install
-```
->_tip_: **npm i** is shorthand for **npm install**
-
-### Setup Backend Node Environment
-You'll need to create a new node server. Open a new terminal within the project directory and run:
-1. Initialize a new project: `npm init`
-2. Install express: `npm i express --save`
-3. Install typescript dependencies: `npm i ts-node-dev tslint typescript  @types/bluebird @types/express @types/node --save-dev`
-4. Look at the `package.json` file from the RestAPI repo and copy the `scripts` block into the auto-generated `package.json` in this project. This will allow you to use shorthand commands like `npm run dev`
+### Docker repo
+Each module has a docker file with the instructions required to build the service.
+1. To build the docker image, go to the module directory and run the following command.
+    For Example, to build the image for feed service, go to the (/udacity-c3-restapi-feed) and run
+    ```bash
+    docker build -t <your_dockerhub_username_lowercase>/<image_name> .
+    ```
+2. To build all the images for the project using docker-compose, use the docker-compose-build.yaml file in udacity-c3-deployment/docker    and run the following command
+   ```bash
+    docker-compose -f docker-compose-build.yaml build --parallel
+    ```
+3. All the docker images are stored in the [Docker Repo](https://hub.docker.com/u/rampalli6)
 
 
-### Configure The Backend Endpoint
-Ionic uses enviornment files located in `./src/enviornments/enviornment.*.ts` to load configuration variables at runtime. By default `environment.ts` is used for development and `enviornment.prod.ts` is used for produciton. The `apiHost` variable should be set to your server url either locally or in the cloud.
+### Creation of Kubernetes Cluster
+The kubernetes cluster is hosted on aws using kubeone and terraform. 
 
-***
-### Running the Development Server
-Ionic CLI provides an easy to use development server to run and autoreload the frontend. This allows you to make quick changes and see them in real time in your browser. To run the development server, open terminal and run:
+### Travis-ci as CI/CD
+1. This github repository is integrated with travis-ci for continuous integration and deployment to the cluster.
+2. The .travis.yml file is configured to perform the following tasks once a commit is pushed to the repo:
+   a. Install docker-compose and kubectl in the travis-ci virtual env.
+   b. Configure kubectl to connect with the remote kubernetes cluster by adding the cluster config file to kubectl setup.
+   c. Build the project using the docker compose command.
+   d. Use custom scripts (udacity-c3-deployment/deploy.sh) to push the built images to docker repo and apply the images to the                 kubernetes cluster with the help of kubectl. 
 
-```bash
-ionic serve
-```
 
-### Building the Static Frontend Files
-Ionic CLI can build the frontend into static HTML/CSS/JavaScript files. These files can be uploaded to a host to be consumed by users on the web. Build artifacts are located in `./www`. To build from source, open terminal and run:
-```bash
-ionic build
-```
-***
+
+
