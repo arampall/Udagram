@@ -18,3 +18,12 @@ before_install:
   - echo "$KUBE_CONFIG" | base64 --decode > ${HOME}/.kube/config
   - ls -a ${HOME}/.kube/
   - kubectl version
+
+install:
+    - docker-compose -f udacity-c3-deployment/docker/docker-compose-build.yaml build --parallel
+
+deploy:
+    provider: script
+    script: cd ./udacity-c3-deployment && chmod +x ./deploy.sh && ./deploy.sh
+    on:
+        branch: dev
