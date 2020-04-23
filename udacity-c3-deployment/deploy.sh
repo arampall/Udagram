@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Login to docker repo using env variables 
+echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
 # Save the docker images to the docker-hub repo
 docker push rampalli6/udacity-frontend:local
 docker push rampalli6/udacity-restapi-feed
