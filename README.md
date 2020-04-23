@@ -26,17 +26,42 @@ Each module has a docker file with the instructions required to build the servic
 3. All the docker images are stored in the [Docker Repo](https://hub.docker.com/u/rampalli6)
 
 
-### Creation of Kubernetes Cluster
-The kubernetes cluster is hosted on aws using kubeone and terraform. 
+### Kubernetes Cluster
+1. The kubernetes cluster is hosted on aws using kubeone and terraform.
+2. kubectl is installed and configured to manage the application in the cluster.
+3. The deployment files, services file, config files and the secrets files are updated and applied to cluster using the following command.
+   ```bash
+    kubectl apply -f <path-to-yaml-file>
+    ``` 
+4. The pods, deployments and services are monitored using,
+   ```bash
+    kubectl get pods
+    kubectl get deployments
+    kubectl get services
+    ```
+#### Rolling Updates:
+       When the image of any one of the deployments is updated and applied, a new container is created in a pod and replaces the existing pod. This process continues until all the pods are updated with the changes.
+       Below is one of the instance when the changes are applied to the backend-feed deployment.
+       ```bash
+          $ kubectl get pods
+          NAME                            READY   STATUS              RESTARTS   AGE
+          backend-feed-67977d4ff7-ms957   1/1     Running             0          2d
+          backend-feed-67977d4ff7-rmqxm   1/1     Terminating         0          5h36m
+          backend-feed-7668f44f6b-6zp8l   0/1     ContainerCreating   0          1s
+          backend-feed-7668f44f6b-hk9fs   1/1     Running             0          25s             
+       ```
+#### A/B deployments
+This can be achieved by having 2 different deployment.yaml files have the label pointing to a single service.yaml file. 
+Based on the traffic, the service serves either of the deployment versions.  
+
 
 ### Travis-ci as CI/CD
-1. This github repository is integrated with travis-ci for continuous integration and deployment to the cluster.
-2. The .travis.yml file is configured to perform the following tasks once a commit is pushed to the repo:
-   a. Install docker-compose and kubectl in the travis-ci virtual env.
-   b. Configure kubectl to connect with the remote kubernetes cluster by adding the cluster config file to kubectl setup.
-   c. Build the project using the docker compose command.
-   d. Use custom scripts (udacity-c3-deployment/deploy.sh) to push the built images to docker repo and apply the images to the                 kubernetes cluster with the help of kubectl. 
-
+This github repository is integrated with travis-ci for continuous integration and deployment to the cluster. The .travis.yml file is configured to perform the following tasks once a commit is pushed to the repo:
+1. Install docker-compose and kubectl in the travis-ci virtual env.
+2. Configure kubectl to connect with the remote kubernetes cluster by adding the cluster config file to kubectl setup.
+3. Build the project using the docker compose command.
+4. Use custom scripts (udacity-c3-deployment/deploy.sh) to push the built images to docker repo and apply the images to the kubernetes cluster with the help of kubectl. 
+The docker repo credentials and the kubernetes cluster config files are stored as environment variable in travis-ci
 
 
 
